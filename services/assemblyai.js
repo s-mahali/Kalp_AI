@@ -51,8 +51,9 @@ export class AssemblyAIService {
 
       //Handle turn events
       transcriber.on("turn", async (turn) => {
+      
         // Ignore empty transcripts or if the bot is currently speaking
-        if (!turn.transcript || session.isSpeaking) {
+        if (!turn.transcript || session.isSpeaking || !turn.end_of_turn || !turn.turn_is_formatted) {
           return;
         }
         console.log(`📝 Transcript received: "${turn.transcript}"`);
