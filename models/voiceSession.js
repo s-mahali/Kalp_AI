@@ -14,10 +14,13 @@ export class VoiceInterviewSession {
         this.connection = null;
         this.audioPlayer = null;
         this.transcriber = null;
-        this.currentTranscript = "";
         this.lastUserTranscript = "";
-        this.audioStram = null;
         this.debounceTimer = null;
+        this.audioPipeline = [];
+
+        //for conversation 
+        this.mode = 'interview'; //default to 'interview'
+        this.chatHistory = []; //For conversational context
 
 
     }
@@ -46,7 +49,12 @@ export class VoiceInterviewSession {
 
     async cleanup(){
         this.isActive = false;
-        
+        if (this.audioPipeline) {
+            this.audioPipeline.forEach(stream => {
+                if (stream && !stream.destroyed) stream.destroy();
+            });
+            this.audioPipeline = null;
+        }
 
         if(this.transcriber){
             try {
@@ -57,14 +65,7 @@ export class VoiceInterviewSession {
             this.transcriber = null;
         }
 
-        if(this.audioStram){
-            try {
-                 this.audioStram.destroy();
-            } catch (error) {
-                 console.error("Error closing audioStream:", error)
-            }
-            this.audioStram = null;
-        }
+        
 
         if(this.connection){
             try {

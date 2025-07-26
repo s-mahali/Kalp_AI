@@ -11,7 +11,7 @@ export class MurfService {
   static async textToSpeech(text, session) {
     return new Promise((resolve, reject) => {
       //Check if the voice connection is still active
-      if (session.connection.state.status !== VoiceConnectionStatus.Ready) {
+      if (session.connection?.state.status !== VoiceConnectionStatus.Ready) {
         console.error(
           "❌ Discord Voice connection is not ready, cannot convert text to speech"
         );

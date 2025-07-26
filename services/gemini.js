@@ -1,11 +1,15 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import {
+  GoogleGenerativeAI,
+  HarmCategory,
+  HarmBlockThreshold,
+} from "@google/generative-ai";
 import { config } from "../config/config.js";
 
 const genAI = new GoogleGenerativeAI(config.apis.geminiApiKey);
 
 export class GeminiService {
   static async generateInterviewQuestions(role, difficulty = "intermediate") {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `Generate 5 technical interview questions for a ${role} position at ${difficulty} level. 
       Format the response as a JSON array of strings. Questions should be practical and relevant to the role.
@@ -38,7 +42,7 @@ export class GeminiService {
   }
 
   static async evaluateAnswer(question, answer, role) {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `As an interviewer for a ${role} position, provide brief feedback on this answer:
       
@@ -63,7 +67,7 @@ export class GeminiService {
   }
 
   static async generateFinalFeedback(session) {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const qaText = session.answers
       .map(
@@ -94,13 +98,18 @@ Keep it conversational and positive for voice delivery.`;
     }
   }
 
-  static async generateFinalReport(session){
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+  static async generateFinalReport(session) {
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    const interviewQuestions = session.questions
+    const interviewQuestions = session.questions;
     const qaText = session.answers
-    .map((qa, index) => `Q${index + 1}: ${interviewQuestions[index]}\nA${index + 1}: ${qa.answer}`)
-    .join("\n\n");
+      .map(
+        (qa, index) =>
+          `Q${index + 1}: ${interviewQuestions[index]}\nA${index + 1}: ${
+            qa.answer
+          }`
+      )
+      .join("\n\n");
 
     const prompt = `Generate a comprehensive interview report for a ${session.role} position candidate based on their responses:
 
@@ -129,27 +138,110 @@ Evaluate based on:
       const response = await result.response;
       const responseText = response.text().trim();
       //clean the response to extract json
-    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-            const parsedReport = JSON.parse(jsonMatch[0]);
-            console.log("Generated final report:", parsedReport);
-            return parsedReport;
-        } else {
-            throw new Error("No valid JSON found in response");
-        }
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsedReport = JSON.parse(jsonMatch[0]);
+        console.log("Generated final report:", parsedReport);
+        return parsedReport;
+      } else {
+        throw new Error("No valid JSON found in response");
+      }
     } catch (error) {
-       console.error("Error generating Report:", error);
-        // Return enhanced fallback report
+      console.error("Error generating Report:", error);
+      // Return enhanced fallback report
+      return {
+        totalScore: 7,
+        technicalScore: 7,
+        communicationScore: 8,
+        overallPerformance: 7,
+        strengths: [
+          "Good communication skills",
+          "Structured thinking",
+          "Relevant experience",
+        ],
+        improvementAreas: ["Technical depth", "Confidence in responses"],
+        detailedFeedback:
+          "The candidate demonstrated solid foundational knowledge and communicated clearly throughout the interview. With some additional preparation on technical concepts, they would be well-positioned for similar roles.",
+        nextSteps:
+          "Focus on strengthening technical skills and practice more complex scenarios",
+      };
+    }
+  }
+
+  static async continueConversation(newPrompt, history) {
+    const genAI = new GoogleGenerativeAI(config.apis.geminiApiKey);
+
+    const systemInstruction = {
+      role: "system",
+      parts: [
+        {
+          text: `
+            You are a friendly and engaging conversational AI assistant.
+Your name is not Gemini. I was developed by a team called Classroom of the Elite.  
+And the voice you're hearing? It's powered by Murf — A.I.
+Your responses must be calm, concise, and written in simple, easily readable text.
+Always keep your answer under 100 words.
+Crucially, you must always end your response by asking a relevant, open-ended follow-up question to encourage continued interaction.
+Do not use markdown formatting.
+          `,
+        },
+      ],
+    };
+
+     console.log("Continuing conversation with new prompt:", newPrompt);
+      const creatorRegex = /who (made|created|developed) you/i;
+    if (creatorRegex.test(newPrompt)) {
+        console.log("Creator question detected. Providing canned response.");
+        const responseText = "I was created by the team 'Classroom of the Elite', and my voice is powered by Murf.ai! What else can I help you with today?";
+         
+        const updatedHistory = [
+            ...history,
+            { role: "user", parts: [{ text: newPrompt }] },
+            { role: "model", parts: [{ text: responseText }] },
+        ];
+
+
+         
+        return { responseText, updatedHistory };
+    }
+ 
+    try {
+        const model = genAI.getGenerativeModel({
+            model: 'gemini-1.5-flash',
+            systemInstruction: systemInstruction,
+        });
+
+        const chat = model.startChat({
+            history: history,
+            generationConfig: {
+                maxOutputTokens: 200,  
+            },
+           
+            safetySettings: [
+                { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+                { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+            ],
+        });
+
+        const result = await chat.sendMessage(newPrompt);
+        const response = result.response;
+        const responseText = response.text();
+        
+      
+
+       
+        const updatedHistory = await chat.getHistory();
+
+        return { responseText, updatedHistory };
+
+    } catch (error) {
+        console.error("Error in continueConversation:", error);
+        
         return {
-            totalScore: 7,
-            technicalScore: 7,
-            communicationScore: 8,
-            overallPerformance: 7,
-            strengths: ["Good communication skills", "Structured thinking", "Relevant experience"],
-            improvementAreas: ["Technical depth", "Confidence in responses"],
-            detailedFeedback: "The candidate demonstrated solid foundational knowledge and communicated clearly throughout the interview. With some additional preparation on technical concepts, they would be well-positioned for similar roles.",
-            nextSteps: "Focus on strengthening technical skills and practice more complex scenarios"
+            responseText: "I seem to be having a little trouble thinking right now. Could you try asking that again?",
+            updatedHistory: history
         };
     }
+     
   }
 }

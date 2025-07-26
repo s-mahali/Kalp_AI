@@ -10,12 +10,32 @@ const assemblyAI = new AssemblyAI({
 
 export class AssemblyAIService {
   static async createTranscriber(session) {
+    //wordboost
+    const wordBoost = [
+      "JavaScript",
+      "Python",
+      "React",
+      "Gemini",
+      "AI",
+      "Node.js",
+      "Frontend",
+      "Backend",
+      "Development",
+      "MurfAI",
+      "Kulp AI",
+      "Coding",
+      "AI Agent",
+       "Next.js", "Vue","AWS", 
+                "Docker", "Kubernetes", "API", "database", "tech stack", "Classroom of the Elite"
+    ];
     try {
       console.log("setting up AssemblyAi transcriber...");
       const transcriber = assemblyAI.streaming.transcriber({
         sampleRate: AUDIO_CONFIG.ASSEMBLY_SAMPLE_RATE,
         formatTurns: true,
+        wordBoost: wordBoost,
         encoding: "pcm_s16le",
+        enableAutomaticPunctuation: true,
       });
 
       //Set up event handlers
@@ -53,32 +73,43 @@ export class AssemblyAIService {
           if (!finalTranscript) return;
           session.lastUserTranscript = "";
           //clear it for the next turn
-          console.log(`👤 User said: ${finalTranscript}`);
+          console.log(`👤 User finished speaking: ${finalTranscript}`);
           session.isSpeaking = true; // Set flag to prevent bot from listening to itself
 
           try {
-            //Get the response from GEMINI
-            session.addAnswer(finalTranscript);
-            let responseText;
-            if (session.nextQuestion()) {
-              const evaluation = await GeminiService.evaluateAnswer(
-                session.questions[session.currentQuestionIndex - 2], // Previous question
-                finalTranscript,
-                session.role
-              );
-              responseText = `${evaluation}  ${session.getCurrentQuestion()}`;
+            //------Conversation Logic------
+            if (session.mode === "conversation") {
+              const { responseText, updatedHistory } =
+                await GeminiService.continueConversation(
+                  finalTranscript,
+                  session.chatHistory
+                );
+              session.chatHistory = updatedHistory; // IMPORTANT: Update history
+              await MurfService.textToSpeech(responseText, session);
+              //----Interview Logic -----
             } else {
-              session.isActive = false;
-              const finalFeedback = await GeminiService.generateFinalFeedback(
-                session
-              );
-              responseText = `${finalFeedback} Thank you for completing the interview! You can use the leave command to disconnect.`;
+              session.addAnswer(finalTranscript);
+              let responseText;
+              if (session.nextQuestion()) {
+                const evaluation = await GeminiService.evaluateAnswer(
+                  session.questions[session.currentQuestionIndex - 2], // Previous question
+                  finalTranscript,
+                  session.role
+                );
+                responseText = `${evaluation}  ${session.getCurrentQuestion()}`;
+              } else {
+                session.isActive = false;
+                const finalFeedback = await GeminiService.generateFinalFeedback(
+                  session
+                );
+                responseText = `${finalFeedback} Thank you for completing the interview! You can use the leave command to disconnect.`;
+              }
+
+              console.log(`🤖 Gemini response: ${responseText}`);
+
+              // 2. Stream the response back as audio using the MurfService
+              await MurfService.textToSpeech(responseText, session);
             }
-
-            console.log(`🤖 Gemini response: ${responseText}`);
-
-            // 2. Stream the response back as audio using the MurfService
-            await MurfService.textToSpeech(responseText, session);
           } catch (error) {
             console.error("❌ AI/TTS API error:", error?.message);
             session.isSpeaking = false; // Reset the flag on error
@@ -88,7 +119,7 @@ export class AssemblyAIService {
 
             await MurfService.textToSpeech(session, fallbackText);
           }
-        }, 1500);
+        }, 1200);
       });
 
       // Connect to the transcription service

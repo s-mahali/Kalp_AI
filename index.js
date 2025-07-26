@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits, REST, Routes } from "discord.js";
+import { Client, GatewayIntentBits, MessageFlags, REST, Routes } from "discord.js";
 import { config } from "./config/config.js";
 import { CommandHandler, voiceInterviewSessions } from "./handlers/command.js";
 import { VoiceHandler } from "./handlers/voice.js";
@@ -63,12 +63,15 @@ client.on("interactionCreate", async (interaction) => {
       case "conversation": 
         await  CommandHandler.handleConversation(interaction);
         break;
+      case "end-conversation": 
+        await  CommandHandler.handleEndconversation(interaction);
+        break;  
     }
   } catch (error) {
     console.error("Error handling interaction:", error);
     await interaction.reply({
       content: "An error occurred while processing your request.",
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral
     });
   }
 });
