@@ -4,7 +4,7 @@ import { CommandHandler, voiceInterviewSessions } from "./handlers/command.js";
 import { EventEmitter } from "events";
 import express from "express";
 import dotenv from "dotenv";
-import {fetch} from "node-fetch"
+import fetch from "node-fetch"
 
 dotenv.config();
 

@@ -502,8 +502,7 @@ export class CommandHandler {
 
       await interaction.editReply({
         embeds: [embed],
-        
-      });
+        });
     } catch (error) {
       console.error("Error in handleLeaveInterview:", error);
       await interaction.editReply({
