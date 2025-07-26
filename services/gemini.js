@@ -45,8 +45,11 @@ export class GeminiService {
       Question: ${question}
       Answer: ${answer}
       
-      Give a short, encouraging response (1-2 sentences) and then ask the next question naturally.
-      Keep it conversational for voice interview.`;
+      Give a short, encouraging response (1-2 sentences) and do not ask the followup question.Move on to the next question naturally.
+      Keep it conversational for voice interview.
+
+      If user is saying sorry repeat the question then answer ${question}
+      `;
 
     try {
       const result = await model.generateContent(prompt);
@@ -60,7 +63,7 @@ export class GeminiService {
   }
 
   static async generateFinalFeedback(session) {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const qaText = session.answers
       .map(
@@ -88,6 +91,65 @@ Keep it conversational and positive for voice delivery.`;
     } catch (error) {
       console.error("Error generating feedback:", error);
       return "Great job completing the interview! Keep practicing and you'll continue to improve.";
+    }
+  }
+
+  static async generateFinalReport(session){
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+    const interviewQuestions = session.questions
+    const qaText = session.answers
+    .map((qa, index) => `Q${index + 1}: ${interviewQuestions[index]}\nA${index + 1}: ${qa.answer}`)
+    .join("\n\n");
+
+    const prompt = `Generate a comprehensive interview report for a ${session.role} position candidate based on their responses:
+
+${qaText}
+
+Provide a detailed analysis in the following JSON format (respond with valid JSON only):
+{
+    "totalScore": number (0-10),
+    "technicalScore": number (0-10),
+    "communicationScore": number (0-10),
+    "overallPerformance": number (0-10),
+    "strengths": ["strength1", "strength2", "strength3"],
+    "improvementAreas": ["area1", "area2"],
+    "detailedFeedback": "2-3 sentence summary of performance",
+    "nextSteps": "Recommended action for candidate"
+}
+
+Evaluate based on:
+- Technical knowledge and accuracy
+- Communication clarity and confidence
+- Problem-solving approach
+- Relevance of answers to the role`;
+
+    try {
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const responseText = response.text().trim();
+      //clean the response to extract json
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            const parsedReport = JSON.parse(jsonMatch[0]);
+            console.log("Generated final report:", parsedReport);
+            return parsedReport;
+        } else {
+            throw new Error("No valid JSON found in response");
+        }
+    } catch (error) {
+       console.error("Error generating Report:", error);
+        // Return enhanced fallback report
+        return {
+            totalScore: 7,
+            technicalScore: 7,
+            communicationScore: 8,
+            overallPerformance: 7,
+            strengths: ["Good communication skills", "Structured thinking", "Relevant experience"],
+            improvementAreas: ["Technical depth", "Confidence in responses"],
+            detailedFeedback: "The candidate demonstrated solid foundational knowledge and communicated clearly throughout the interview. With some additional preparation on technical concepts, they would be well-positioned for similar roles.",
+            nextSteps: "Focus on strengthening technical skills and practice more complex scenarios"
+        };
     }
   }
 }

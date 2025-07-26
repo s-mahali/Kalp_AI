@@ -10,16 +10,14 @@ export class VoiceInterviewSession {
         this.answers = [];
         this.startTime = new Date();
         this.isActive = false;
-        this.isListening = false;
         this.isSpeaking = false; //Track when bot is speaking 
         this.connection = null;
         this.audioPlayer = null;
         this.transcriber = null;
         this.currentTranscript = "";
+        this.lastUserTranscript = "";
         this.audioStram = null;
-        this.botUserId = null; 
-        this.decoder = null;
-        this.bufferAggregator = null;
+        this.debounceTimer = null;
 
 
     }
@@ -44,16 +42,11 @@ export class VoiceInterviewSession {
         return this.currentQuestionIndex >= this.questions.length;
     }
 
-    setBotSpeaking(speaking){
-        this.isSpeaking = speaking;
-        if(speaking){
-            this.isListening = false; // Don't listen when bot is speaking
-        }
-    }
+    
 
     async cleanup(){
         this.isActive = false;
-        this.isListening = false;
+        
 
         if(this.transcriber){
             try {

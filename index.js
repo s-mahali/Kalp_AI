@@ -2,7 +2,7 @@ import { Client, GatewayIntentBits, REST, Routes } from "discord.js";
 import { config } from "./config/config.js";
 import { CommandHandler, voiceInterviewSessions } from "./handlers/command.js";
 import { VoiceHandler } from "./handlers/voice.js";
-import {EventEmitter} from 'events'
+import { EventEmitter } from "events";
 
 process.env.DEBUG = "discord:*";
 
@@ -24,7 +24,10 @@ async function registerCommands() {
   try {
     console.log("Started refreshing application (/) commands.");
     await rest.put(
-      Routes.applicationGuildCommands(config.discord.clientId, config.discord.guildId),
+      Routes.applicationGuildCommands(
+        config.discord.clientId,
+        config.discord.guildId
+      ),
       { body: CommandHandler.getCommands() }
     );
     console.log("Successfully reloaded application (/) commands.");
@@ -40,8 +43,6 @@ client.once("ready", () => {
   EventEmitter.defaultMaxListeners = 20;
 });
 
-
-
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
@@ -54,10 +55,13 @@ client.on("interactionCreate", async (interaction) => {
         await CommandHandler.handleJoinInterview(interaction);
         break;
       case "leave-interview":
-        await CommandHandler.handleInterviewStatus(interaction);
+        await CommandHandler.handleLeaveInterview(interaction);
         break;
       case "interview-status":
-        await CommandHandler.handleLeaveInterview(interaction);
+        await CommandHandler.handleInterviewStatus(interaction);
+        break;
+      case "conversation": 
+        await  CommandHandler.handleConversation(interaction);
         break;
     }
   } catch (error) {
@@ -72,12 +76,10 @@ client.on("interactionCreate", async (interaction) => {
 // Cleanup on bot shutdown
 process.on("SIGINT", () => {
   console.log("Shutting down bot...");
-  for (const [userId, session] of voiceInterviewSessions.entries()) {
-    console.log(`Cleaning up session for user ${userId}`);
-    VoiceHandler.cleanupUserAudio(session);
-    if (session.transcriber) session.transcriber.close();
-    if (session.connection) session.connection.destroy();
-  }
+
+  if (session.transcriber) session.transcriber.close();
+  if (session.connection) session.connection.destroy();
+
   voiceInterviewSessions.clear();
   client.destroy();
   process.exit(0);
@@ -90,5 +92,3 @@ process.on("unhandledRejection", (error) => {
 
 // Login to Discord
 client.login(config.discord.token);
-
-
