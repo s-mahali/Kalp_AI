@@ -125,13 +125,14 @@ export class AssemblyAIService {
       // });
 
       transcriber.on("turn", async (turn) => {
-  if (!turn.transcript || session.isSpeaking || !turn.end_of_turn) return;
+  if (!turn.turn_is_formatted || !turn.transcript) return;
 
   const transcript = turn.transcript.trim();
+    
 
-  if (transcript === session.lastUserTranscript) return;
+ 
   console.log(`📝 Transcript received: "${transcript}"`);
-  session.lastUserTranscript = transcript;
+  // session.lastUserTranscript = transcript;
 
   if (transcript.split(" ").length <= 4) {
     await handleTranscript(transcript, session);  
