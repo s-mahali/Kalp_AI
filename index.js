@@ -250,7 +250,8 @@ app.listen(port, () => {
 
 // Login to Discord with better error handling
 console.log("🔐 Attempting to login to Discord...");
-client.login(config.discord.token)
+
+client.login(process.env.DISCORD_TOKEN)
   .then(() => {
     console.log("✅ Discord login successful");
   })
