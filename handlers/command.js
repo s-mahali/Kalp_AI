@@ -486,7 +486,7 @@ export class CommandHandler {
       });
       return;
     }
-
+    await interaction.deferReply();
     try {
       const embed = new EmbedBuilder()
         .setColor(0x0099ff)
@@ -504,7 +504,7 @@ export class CommandHandler {
         embeds: [embed],
         });
     } catch (error) {
-      console.error("Error in handleLeaveInterview:", error);
+      console.error("Error in handleEndConversation:", error);
       await interaction.editReply({
         content:
           "❌ There was an error ending your conversation. Please try again.",

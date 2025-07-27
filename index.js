@@ -78,6 +78,7 @@ async function registerCommands() {
       { body: CommandHandler.getCommands() }
     );
     console.log("Successfully reloaded application (/) commands.");
+    keepAlive();
   } catch (error) {
     console.error(error);
   }
@@ -88,7 +89,7 @@ client.once("ready", () => {
   console.log(`${client.user.tag} is ready for voice interviews!`);
   registerCommands();
   EventEmitter.defaultMaxListeners = 20;
-  keepAlive();
+  
 });
 
 client.on("interactionCreate", async (interaction) => {
