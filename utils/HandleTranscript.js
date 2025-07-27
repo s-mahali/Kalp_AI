@@ -3,7 +3,8 @@ import { MurfService } from "../services/murf.js";
 
 export async function handleTranscript(transcript, session) {
   console.log(`👤 User finished speaking: ${transcript}`);
-  
+  console.log(`question, ${session.getCurrentQuestion()}`);
+  console.log(`currentQuestionIndex, ${session.currentQuestionIndex}`);
   
 
   try {
@@ -17,6 +18,7 @@ export async function handleTranscript(transcript, session) {
     } else {
       session.addAnswer(transcript);
       if (session.nextQuestion()) {
+
         const evaluation = await GeminiService.evaluateAnswer(
           session.questions[session.currentQuestionIndex - 2],
           transcript,
@@ -26,7 +28,7 @@ export async function handleTranscript(transcript, session) {
       } else {
         session.isActive = false;
         const finalFeedback = await GeminiService.generateFinalFeedback(session);
-        responseText = `${finalFeedback} Thank you for completing the interview!`;
+        responseText = `${finalFeedback} Thank you for completing the interview! Have a nice day.`;
       }
     }
 

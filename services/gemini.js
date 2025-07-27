@@ -43,7 +43,7 @@ export class GeminiService {
 
   static async evaluateAnswer(question, answer, role) {
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
+    
     const prompt = `As an interviewer for a ${role} position, provide brief feedback on this answer:
       
       Question: ${question}

@@ -135,20 +135,20 @@ export class CommandHandler {
       await interaction.editReply({ embeds: [embed] });
 
       //murf starting welcome message
-      //Hello! Welcome to your ${role} interview. I'll be asking you ${
-      //   questions.length
-      //  } questions. Please speak clearly and take your time.
-      //Start the interview with first question
+      
 
       setTimeout(async () => {
-        const welcomeText = ` Let's begin with the first question: ${session.getCurrentQuestion()}`;
+        const welcomeText = `Hello! Welcome to your ${role} interview. I'll be asking you 
+        ${questions.length}
+        questions. Please speak clearly and take your time.
+       Let's begin with the first question: ${session.getCurrentQuestion()}`;
         await MurfService.textToSpeech(welcomeText, session);
 
         //Enable listening after welcome message
         setTimeout(() => {
           console.log("🎙️ Now  Listening for user response...");
         }, 1000);
-      }, 2000);
+      }, 1000);
     } catch (error) {
       console.error("❌ Error joining voice channel:", error);
       voiceInterviewSessions.delete(userId);
@@ -229,11 +229,11 @@ export class CommandHandler {
             }/10**\n${createProgressBar(finalReport.overallPerformance, 10)}`,
             inline: true,
           },
-          {
-            name: "📈 Completion Rate",
-            value: `**${completionRate}%**\n${session.answers.length}/${session.questions.length} questions`,
-            inline: true,
-          },
+          // {
+          //   name: "📈 Completion Rate",
+          //   value: `**${completionRate}%**\n${session.answers.length}/${session.questions.length} questions`,
+          //   inline: true,
+          // },
           {
             name: "⏱️ Duration",
             value: `**${durationMinutes} minutes**\n${
@@ -241,27 +241,27 @@ export class CommandHandler {
             } min/question`,
             inline: true,
           },
-          {
-            name: "🔧 Technical Skills",
-            value: `${getPerformanceEmoji(finalReport.technicalScore + 4)} ${
-              finalReport.technicalScore
-            }/10`,
-            inline: true,
-          },
-          {
-            name: "💬 Communication",
-            value: `${getPerformanceEmoji(
-              finalReport.communicationScore + 4
-            )} ${finalReport.communicationScore}/10`,
-            inline: true,
-          },
-          {
-            name: "🎯 Total Score",
-            value: `${getPerformanceEmoji(finalReport.totalScore + 4)} ${
-              finalReport.totalScore
-            }/10`,
-            inline: true,
-          }
+          // {
+          //   name: "🔧 Technical Skills",
+          //   value: `${getPerformanceEmoji(finalReport.technicalScore + 4)} ${
+          //     finalReport.technicalScore
+          //   }/10`,
+          //   inline: true,
+          // },
+          // {
+          //   name: "💬 Communication",
+          //   value: `${getPerformanceEmoji(
+          //     finalReport.communicationScore + 4
+          //   )} ${finalReport.communicationScore}/10`,
+          //   inline: true,
+          // },
+          // {
+          //   name: "🎯 Total Score",
+          //   value: `${getPerformanceEmoji(Number(finalReport.totalScore))} ${
+          //     finalReport.totalScore
+          //   }/10`,
+          //   inline: true,
+          // }
           // {
           //     name: "💪 Key Strengths",
           //     value: finalReport.strengths.map(strength => `• ${strength}`).join('\n'),
@@ -373,7 +373,7 @@ export class CommandHandler {
         { name: "🎯 Role", value: session.role, inline: true },
         {
           name: "📊 Progress",
-          value: `${session.currentQuestionIndex + 1} / ${
+          value: `${session.currentQuestionIndex} / ${
             session.questions.length
           }`,
           inline: true,

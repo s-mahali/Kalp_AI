@@ -88,26 +88,25 @@ async function registerCommands() {
 }
 
 // Cron schedule to keep alive the server 
-const keepAlive = () => {
-   const interval = setInterval(() => {
-      // Only ping if we have a render URL and bot is ready
-      if (process.env.RENDER_EXTERNAL_URL && client.isReady()) {
-           fetch(process.env.RENDER_EXTERNAL_URL)
-           .then(res => console.log(`🏓 Self Ping: ${res.status} at ${new Date().toISOString()}`))
-           .catch(err => console.log(`❌ Self Ping Error: ${err.message}`));
-      }
-   }, 14 * 60 * 1000); // 14 min
+// const keepAlive = () => {
+//    const interval = setInterval(() => {
+//       // Only ping if we have a render URL and bot is ready
+//       if (process.env.RENDER_EXTERNAL_URL && client.isReady()) {
+//            fetch(process.env.RENDER_EXTERNAL_URL)
+//            .then(res => console.log(`🏓 Self Ping: ${res.status} at ${new Date().toISOString()}`))
+//            .catch(err => console.log(`❌ Self Ping Error: ${err.message}`));
+//       }
+//    }, 14 * 60 * 1000); // 14 min
    
-   return interval;
-}
+//    return interval;
+// }
 
 let keepAliveInterval;
 
 // Bot event handlers
 client.once("ready", async () => {
   console.log(`🤖 ${client.user.tag} is ready for voice interviews!`);
-  console.log(`📊 Connected to ${client.guilds.cache.size} guilds`);
-  console.log(`👥 Serving ${client.users.cache.size} users`);
+  
   
   // Set event emitter max listeners
   EventEmitter.defaultMaxListeners = 20;
@@ -121,8 +120,7 @@ client.once("ready", async () => {
     console.error("⚠️ Bot started but commands failed to register");
   }
   
-  // Start keep alive only after successful startup
-  keepAliveInterval = keepAlive();
+ 
 });
 
 // Add error event handler for the client
@@ -205,9 +203,9 @@ const cleanup = () => {
   console.log("🔄 Shutting down bot...");
 
   // Clear keep alive interval
-  if (keepAliveInterval) {
-    clearInterval(keepAliveInterval);
-  }
+  // if (keepAliveInterval) {
+  //   clearInterval(keepAliveInterval);
+  // }
 
   // Cleanup voice sessions
   voiceInterviewSessions.forEach((session, userId) => {
