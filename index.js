@@ -1,10 +1,57 @@
 import { Client, GatewayIntentBits, MessageFlags, REST, Routes } from "discord.js";
 import { config } from "./config/config.js";
 import { CommandHandler, voiceInterviewSessions } from "./handlers/command.js";
-import { VoiceHandler } from "./handlers/voice.js";
 import { EventEmitter } from "events";
+import express from "express";
+import dotenv from "dotenv";
+import fetch from "node-fetch"
 
-process.env.DEBUG = "discord:*";
+dotenv.config();
+
+
+//process.env.DEBUG = "discord:*";
+
+const app = express();
+const port = process.env.PORT || 3000;
+
+
+//Health check endpoint
+app.get('/', (_, res) => {
+    res.json({
+      status: 'Bot is running',
+      uptime: process.uptime(),
+      memoryUsage: process.memoryUsage(),
+      cpuUsage: process.cpuUsage(),
+      timestamp: new Date().toISOString(),
+    });
+
+});
+
+//endpoint to check bot status 
+app.get('/status', (_, res) => {
+  res.json({
+    botReady: client.isReady(),
+    guilds: client.guilds.cache.size,
+    users: client.users.cache.size
+  });
+});
+
+//start express server 
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
+
+//cron schedule to keep alive the server 
+const keepAlive = () => {
+   setInterval(() => {
+      //only ping if we have a render URL
+      if(process.env.RENDER_EXTERNAL_URL){
+           fetch(process.env.RENDER_EXTERNAL_URL)
+           .then(res => console.log(`Self Ping: ${res.status}`))
+           .catch(err => console.log(`Self Ping Error: ${err.message}`));
+      }
+   }, 14 * 60 * 1000); //14 min
+}
 
 const client = new Client({
   intents: [
@@ -41,6 +88,7 @@ client.once("ready", () => {
   console.log(`${client.user.tag} is ready for voice interviews!`);
   registerCommands();
   EventEmitter.defaultMaxListeners = 20;
+  keepAlive();
 });
 
 client.on("interactionCreate", async (interaction) => {
@@ -80,8 +128,10 @@ client.on("interactionCreate", async (interaction) => {
 process.on("SIGINT", () => {
   console.log("Shutting down bot...");
 
-  if (session.transcriber) session.transcriber.close();
-  if (session.connection) session.connection.destroy();
+  if(session){
+    if (session.transcriber) session.transcriber.close();
+    if (session.connection) session.connection.destroy();
+  }
 
   voiceInterviewSessions.clear();
   client.destroy();
