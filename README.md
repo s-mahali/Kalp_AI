@@ -1,7 +1,7 @@
 # Kulp AI Discord Bot -
 
 Welcome to the **Kulp AI** 
-Built by **S Mahali** and **Vishal Kumar** for the **Murf AI** Coding Challenge, this project powers **Kulp AI**, a Discord bot that helps users practice mock interviews and improve communication skills through real-time voice conversations.
+Built by **Soumen Mahali** and **Vishal Kumar** for the **Murf AI** Coding Challenge, this project powers **Kulp AI**, a Discord bot that helps users practice mock interviews and improve communication skills through real-time voice conversations.
 
 ---
 
@@ -30,7 +30,7 @@ Kulp AI is an AI-powered Discord bot designed to:
   - **Gemini (Google Generative AI):** Generates interview questions, evaluates answers, and provides feedback.
   - **Murf AI:** Converts Kulp AI’s text responses into high-quality voice (TTS).
   - **AssemblyAI:** Streams and transcribes user speech in real time (STT).
-   **DiscordJs**
+   **DiscordJs**: Utilizes Discord.js for bot interactions and voice channel management.
 
 ---
 
@@ -61,7 +61,7 @@ Kulp AI is an AI-powered Discord bot designed to:
 ### 1. **Clone the Repo**
 ```bash
 git clone https://github.com/s-mahali/skillspar.git
-cd skillspar
+cd test
 ```
 
 ### 2. **Install Dependencies**
