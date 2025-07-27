@@ -124,34 +124,32 @@ export class AssemblyAIService {
       //   }, 1200);
       // });
 
-      transcriber.on("turn", async (turn) => {
+   transcriber.on("turn", async (turn) => {
   if (!turn.transcript) return;
 
-  session.lastUserTranscript = (session.lastUserTranscript || "") + " " + turn.transcript.trim();
-  const transcript = session.lastUserTranscript.trim();
+  const newText = turn.transcript.trim();
+  console.log(`📝 Transcript part received: "${newText}"`);
 
-  console.log(`📝 Transcript part received: "${transcript}"`);
-    // Clear any existing timer.
-        if (session.debounceTimer) {
-          clearTimeout(session.debounceTimer);
-        }
+  // Append the new chunk to the existing transcript
+  // session.lastUserTranscript = (session.lastUserTranscript || "") + " " + newText;
 
-        // Set a new timer. If the user keeps talking, this gets reset.
-        // If they pause for 1.2 seconds, the code inside will run.
-        session.debounceTimer = setTimeout(async () => {
-          const finalTranscript = session.lastUserTranscript.trim();
-          
-          // Clear it for the next turn.
-          session.lastUserTranscript = ""; 
+  // Clear previous debounce timer
+  if (session.debounceTimer) {
+    clearTimeout(session.debounceTimer);
+  }
 
-          if (!finalTranscript || session.isSpeaking) {
-             return;
-          }
-          
-          await handleTranscript(finalTranscript, session);
+  // Set a debounce timer to trigger when user stops speaking
+  session.debounceTimer = setTimeout(async () => {
+    // const finalTranscript = session.lastUserTranscript.trim();
+    //  = ""; // Reset for next utterance
 
-        }, 1200); // 1.2 second pause indicates end of speech
-      });
+    if (!newText) return;
+
+    console.log(`✅ Final transcript to process: "${newText}"`);
+    await handleTranscript(newText, session);
+  }, 1200); // Wait 1.2s of silence before processing
+});
+
 
       console.log("🔌 Connecting to AssemblyAI streaming service...");
       await transcriber.connect();
