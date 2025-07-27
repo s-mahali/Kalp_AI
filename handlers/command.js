@@ -84,6 +84,8 @@ export class CommandHandler {
     await interaction.deferReply();
 
     try {
+
+       
       //Generate Questions
       const questions = await GeminiService.generateInterviewQuestions(
         role,
@@ -102,13 +104,14 @@ export class CommandHandler {
       session.questions = questions;
       session.isActive = true;
       voiceInterviewSessions.set(userId, session);
-
+      
       //Setup voice connection
       await VoiceHandler.setupVoiceConnection(
         session,
         voiceChannel,
         interaction.client.user.id
       );
+     
 
       const embed = new EmbedBuilder()
         .setColor(0x00ff99)
@@ -492,11 +495,12 @@ export class CommandHandler {
         .setColor(0x0099ff)
         .setTitle("🎤 Conversation Ended")
         .setDescription(
-          `Thankyou ${interaction.user.displayName} for using Kalp AI, Have a nice day!`
+          `Thankyou ${interaction.user.displayName} for using Kalp AI, Have a nice day!
+          Kalp AI | developed by Classroom of the Elite ${new Date().toLocaleDateString()}`,
+          
         )
         .setFooter({
-          text: `Kalp AI | developed by Classroom of the Elite ${new Date().toLocaleDateString()}`,
-          text: "https://github/s-mahali",
+          text: "https://github.com/s-mahali | https://github.com/Vishalpandey1799",
         })
         .setTimestamp();
 

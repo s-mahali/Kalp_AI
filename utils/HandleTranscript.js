@@ -3,7 +3,8 @@ import { MurfService } from "../services/murf.js";
 
 export async function handleTranscript(transcript, session) {
   console.log(`👤 User finished speaking: ${transcript}`);
-  session.isSpeaking = true;
+  
+  
 
   try {
     let responseText;

@@ -78,18 +78,20 @@ async function registerCommands() {
       { body: CommandHandler.getCommands() }
     );
     console.log("Successfully reloaded application (/) commands.");
-    keepAlive();
+    
   } catch (error) {
     console.error(error);
   }
 }
+
+
 
 // Bot event handlers
 client.once("ready", () => {
   console.log(`${client.user.tag} is ready for voice interviews!`);
   registerCommands();
   EventEmitter.defaultMaxListeners = 20;
-  
+   keepAlive();
 });
 
 client.on("interactionCreate", async (interaction) => {
@@ -145,4 +147,7 @@ process.on("unhandledRejection", (error) => {
 });
 
 // Login to Discord
-client.login(config.discord.token);
+client.login(config.discord.token)
+  .catch(err => {
+    console.error("Failed to login:", err);
+  });

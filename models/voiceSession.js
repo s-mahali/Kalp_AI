@@ -21,8 +21,8 @@ export class VoiceInterviewSession {
         //for conversation 
         this.mode = 'interview'; //default to 'interview'
         this.chatHistory = []; //For conversational context
-
-
+        
+        
     }
 
     addAnswer(answer){

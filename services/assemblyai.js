@@ -127,33 +127,39 @@ export class AssemblyAIService {
       transcriber.on("turn", async (turn) => {
   if (!turn.turn_is_formatted || !turn.transcript) return;
 
-  const transcript = turn.transcript.trim();
-    
+  session.lastUserTranscript = (session.lastUserTranscript || "") + " " + turn.transcript.trim();
+  const transcript = session.lastUserTranscript.trim();
 
- 
-  console.log(`📝 Transcript received: "${transcript}"`);
-  // session.lastUserTranscript = transcript;
+  console.log(`📝 Transcript part received: "${transcript}"`);
+    // Clear any existing timer.
+        if (session.debounceTimer) {
+          clearTimeout(session.debounceTimer);
+        }
 
-  if (transcript.split(" ").length <= 4) {
-    await handleTranscript(transcript, session);  
-    return;
-  }
+        // Set a new timer. If the user keeps talking, this gets reset.
+        // If they pause for 1.2 seconds, the code inside will run.
+        session.debounceTimer = setTimeout(async () => {
+          const finalTranscript = session.lastUserTranscript.trim();
+          
+          // Clear it for the next turn.
+          session.lastUserTranscript = ""; 
 
-  if (session.debounceTimer) clearTimeout(session.debounceTimer);
+          if (!finalTranscript || session.isSpeaking) {
+             return;
+          }
+          
+          await handleTranscript(finalTranscript, session);
 
-  session.debounceTimer = setTimeout(() => {
-    const finalTranscript = session.lastUserTranscript;
-    session.lastUserTranscript = "";
-    if (finalTranscript) handleTranscript(finalTranscript, session);
-  }, 150);
-});
+        }, 1200); // 1.2 second pause indicates end of speech
+      });
 
-
-      // Connect to the transcription service
       console.log("🔌 Connecting to AssemblyAI streaming service...");
       await transcriber.connect();
       console.log("✅ AssemblyAI transcriber setup complete");
       return transcriber;
+  
+
+ 
     } catch (error) {
       console.error("❌ error transcripting audio", error);
       return null;
