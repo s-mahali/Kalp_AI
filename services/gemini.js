@@ -231,6 +231,7 @@ Do not use markdown formatting.
 
        
         const updatedHistory = await chat.getHistory();
+        console.log(responseText)
 
         return { responseText, updatedHistory };
 
