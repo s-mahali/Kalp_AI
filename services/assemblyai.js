@@ -125,7 +125,7 @@ export class AssemblyAIService {
       // });
 
       transcriber.on("turn", async (turn) => {
-  if (!turn.turn_is_formatted || !turn.transcript) return;
+  if (!turn.transcript) return;
 
   session.lastUserTranscript = (session.lastUserTranscript || "") + " " + turn.transcript.trim();
   const transcript = session.lastUserTranscript.trim();
