@@ -466,60 +466,60 @@ export class CommandHandler {
     const userId = interaction.user.id;
     const session = voiceInterviewSessions.get(userId);
 
+    // FIX 1: Handle the "no session" case immediately. This is a fast check.
     if (!session) {
-      await interaction.reply({
-        content: "You don't have an active conversation.",
-        flags: MessageFlags.Ephemeral,
-      });
-      return;
-    }
-
-    if (session.mode !== "conversation") {
-      await interaction.reply({
-        content:
-          "You are not in a conversation mode. Use /leave-interview to end it first.",
-        flags: MessageFlags.Ephemeral,
-      });
-      return;
-    } else if (session.mode === "interview") {
-      await interaction.reply({
-        content:
-          "You are in an interview mode. Use /leave-interview to end it first.",
-        flags: MessageFlags.Ephemeral,
-      });
-      return;
-    }
-    await interaction.deferReply();
-    try {
-      const embed = new EmbedBuilder()
-        .setColor(0x0099ff)
-        .setTitle("🎤 Conversation Ended")
-        .setDescription(
-          `Thankyou ${interaction.user.displayName} for using Kalp AI, Have a nice day!
-          Kalp AI | developed by Classroom of the Elite ${new Date().toLocaleDateString()}`,
-          
-        )
-        .setFooter({
-          text: "https://github.com/s-mahali | https://github.com/Vishalpandey1799",
-        })
-        .setTimestamp();
-
-      await interaction.editReply({
-        embeds: [embed],
+        return interaction.reply({
+            content: "You don't have an active conversation to end.",
+            flags: MessageFlags.Ephemeral,
         });
-    } catch (error) {
-      console.error("Error in handleEndConversation:", error);
-      await interaction.editReply({
-        content:
-          "❌ There was an error ending your conversation. Please try again.",
-        flags: MessageFlags.Ephemeral,
-      });
-    } finally {
-      // Cleanup session
-      await session.cleanup();
-      voiceInterviewSessions.delete(userId);
     }
-  }
+
+    // FIX 2: Defer the reply ONCE, right after initial validation.
+    // Now we can take our time and will only use .editReply() from now on.
+    await interaction.deferReply();
+
+    try {
+        // FIX 3: Simplified the mode check.
+        // If the mode isn't "conversation", we send one message covering all other cases.
+        if (session.mode !== "conversation") {
+            return interaction.editReply({
+                content: "You are not in a conversation mode. Use `/leave-interview` to end your interview session.",
+            });
+        }
+
+        // This is the success path.
+        const embed = new EmbedBuilder()
+            .setColor(0x0099ff)
+            .setTitle("🎤 Conversation Ended")
+            .setDescription(`Thank you, ${interaction.user.displayName}, for using Kalp AI. Have a nice day!`)
+            .setFooter({ text: "Developed by Soumen Mahali & Vishal Kumar" })
+            .setTimestamp();
+
+        await interaction.editReply({
+            embeds: [embed],
+        });
+
+    } catch (error) {
+        console.error("Error during handleEndConversation logic:", error);
+        // We already deferred, so we must edit the reply on error.
+        await interaction.editReply({
+            content: "❌ There was an error ending your conversation. Please try again.",
+        });
+    } finally {
+        // FIX 4: Wrap cleanup in a try/catch to prevent the unhandled error crash.
+        // This ensures the session is always removed, even if cleanup fails.
+        try {
+            if (session) {
+                await session.cleanup();
+                console.log(`Cleaned up session for user ${userId}`);
+            }
+        } catch (cleanupError) {
+            console.error(`Failed to cleanup session for user ${userId}:`, cleanupError);
+        }
+        voiceInterviewSessions.delete(userId);
+        console.log(`Deleted session from map for user ${userId}`);
+    }
+}
 
   static getSessions() {
     return voiceInterviewSessions;
