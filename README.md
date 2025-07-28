@@ -1,7 +1,7 @@
 # Kulp AI Discord Bot -
 
-Welcome to the **Kulp AI** 
-Built by **Soumen Mahali** and **Vishal Kumar** for the **Murf AI** Coding Challenge, this project powers **Kulp AI**, a Discord bot that helps users practice mock interviews and improve communication skills through real-time voice conversations.
+Welcome to the **Kalp AI** 
+Built by **Soumen Mahali** and **Vishal Kumar** for the **Murf AI** Coding Challenge, this project powers **Kalp AI**, a Discord bot that helps users practice mock interviews and improve communication skills through real-time voice conversations.
 
 ---
 
