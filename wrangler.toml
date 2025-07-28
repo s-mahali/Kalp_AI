@@ -8,3 +8,6 @@ main = "index.js"
 
 # This ensures your Worker runs with a recent version of the runtime.
 compatibility_date = "2025-07-28"
+
+# Add this line to enable Node.js APIs
+compatibility_flags = ["nodejs_compat"]
