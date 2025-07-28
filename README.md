@@ -1,13 +1,13 @@
-# Kulp AI Discord Bot -
+# Kalp AI Discord Bot -
 
 Welcome to the **Kalp AI** 
 Built by **Soumen Mahali** and **Vishal Kumar** for the **Murf AI** Coding Challenge, this project powers **Kalp AI**, a Discord bot that helps users practice mock interviews and improve communication skills through real-time voice conversations.
 
 ---
 
-## What is Kulp AI?
+## What is Kalp AI?
 
-Kulp AI is an AI-powered Discord bot designed to:
+Kalp AI is an AI-powered Discord bot designed to:
 - **Conduct technical mock interviews** tailored to different roles and difficulty levels.
 - **Engage in free-form conversations** to help users improve their spoken English and confidence.
 - **Provide real-time feedback** on answers and overall performance.
@@ -18,17 +18,17 @@ Kulp AI is an AI-powered Discord bot designed to:
 ## Key Features
 
 - **Interview Practice:**  
-  Choose a role (e.g., Backend Node.js Developer, Frontend React Developer, DevOps Engineer) and difficulty. Kulp AI generates questions using Gemini and evaluates your responses conversationally.
+  Choose a role (e.g., Backend Node.js Developer, Frontend React Developer, DevOps Engineer) and difficulty. Kalp AI generates questions using Gemini and evaluates your responses conversationally.
 
 - **Free Conversation Mode:**  
-  Chat with Kulp AI in your voice channel for open-ended practice, powered by AI.
+  Chat with Kalp AI in your voice channel for open-ended practice, powered by AI.
 
 - **Real-Time Voice:**  
   Speak naturally; the bot listens, transcribes, responds, and speaks back instantly.
 
 - **AI Stack:**
   - **Gemini (Google Generative AI):** Generates interview questions, evaluates answers, and provides feedback.
-  - **Murf AI:** Converts Kulp AI’s text responses into high-quality voice (TTS).
+  - **Murf AI:** Converts Kalp AI’s text responses into high-quality voice (TTS).
   - **AssemblyAI:** Streams and transcribes user speech in real time (STT).
    **DiscordJs**: Utilizes Discord.js for bot interactions and voice channel management.
 
@@ -37,16 +37,16 @@ Kulp AI is an AI-powered Discord bot designed to:
 ## How Does It Work?
 
 ### 1. **Join a Voice Channel**
-- Use `/join-interview` (or `/conversation`) to invite Kulp AI.
+- Use `/join-interview` (or `/conversation`) to invite Kalp AI.
 - Select your desired interview role and difficulty.
 
 ### 2. **Interview Flow**
-- Kulp AI asks questions, listens to your spoken answers, and evaluates them using Gemini.
+- Kalp AI asks questions, listens to your spoken answers, and evaluates them using Gemini.
 - All communication is in real time.
 - At the end, you'll receive overall feedback and encouragement.
 
 ### 3. **Free Conversation**
-- Use `/conversation` to start chatting with Kulp AI for casual practice.
+- Use `/conversation` to start chatting with Kalp AI for casual practice.
 - End the session with `/end-conversation`.
 
 ### 4. **Voice Tech Stack**
