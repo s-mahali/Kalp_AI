@@ -4,7 +4,7 @@ import { CommandHandler, voiceInterviewSessions } from "./handlers/command.js";
 import { EventEmitter } from "events";
 import express from "express";
 import dotenv from "dotenv";
-import fetch from "node-fetch"
+// import fetch from "node-fetch"
 
 dotenv.config();
 
@@ -42,16 +42,16 @@ app.listen(port, () => {
 });
 
 //cron schedule to keep alive the server 
-const keepAlive = () => {
-   setInterval(() => {
-      //only ping if we have a render URL
-      if(process.env.RENDER_EXTERNAL_URL){
-           fetch(process.env.RENDER_EXTERNAL_URL)
-           .then(res => console.log(`Self Ping: ${res.status}`))
-           .catch(err => console.log(`Self Ping Error: ${err.message}`));
-      }
-   }, 14 * 60 * 1000); //14 min
-}
+// const keepAlive = () => {
+//    setInterval(() => {
+//       //only ping if we have a render URL
+//       if(process.env.RENDER_EXTERNAL_URL){
+//            fetch(process.env.RENDER_EXTERNAL_URL)
+//            .then(res => console.log(`Self Ping: ${res.status}`))
+//            .catch(err => console.log(`Self Ping Error: ${err.message}`));
+//       }
+//    }, 14 * 60 * 1000); //14 min
+// }
 
 const client = new Client({
   intents: [
@@ -70,13 +70,11 @@ async function registerCommands() {
 
   try {
     console.log("Started refreshing application (/) commands.");
-    await rest.put(
-      Routes.applicationGuildCommands(
-        config.discord.clientId,
-        config.discord.guildId
-      ),
-      { body: CommandHandler.getCommands() }
-    );
+    const route = process.env.NODE_ENV === "production" ? Routes.applicationCommands(config.discord.clientId) : Routes.applicationGuildCommands(config.discord.clientId, config.discord.guildId);
+
+    await rest.put(route, {
+      body: CommandHandler.getCommands(),
+    })
     console.log("Successfully reloaded application (/) commands.");
     
   } catch (error) {
@@ -91,7 +89,7 @@ client.once("ready", () => {
   console.log(`${client.user.tag} is ready for voice interviews!`);
   registerCommands();
   EventEmitter.defaultMaxListeners = 20;
-   keepAlive();
+  
 });
 
 client.on("interactionCreate", async (interaction) => {

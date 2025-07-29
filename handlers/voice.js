@@ -27,7 +27,7 @@ export class VoiceHandler {
       });
 
       //Wait for connection to be ready
-      await entersState(connection, VoiceConnectionStatus.Ready, 20000);
+      await entersState(connection, VoiceConnectionStatus.Ready, 30000);
       console.log("✅ Voice connection ready!");
 
       //Create audio player
