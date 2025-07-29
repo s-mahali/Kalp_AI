@@ -32,7 +32,8 @@ app.get('/status', (_, res) => {
   res.json({
     botReady: client.isReady(),
     guilds: client.guilds.cache.size,
-    users: client.users.cache.size
+    users: client.users.cache.size,
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
@@ -70,12 +71,17 @@ async function registerCommands() {
 
   try {
     console.log("Started refreshing application (/) commands.");
+    if (!config.discord.clientId || !config.discord.token) {
+      throw new Error("Missing Discord client ID or token in config");
+    }
     const route = process.env.NODE_ENV === "production" ? Routes.applicationCommands(config.discord.clientId) : Routes.applicationGuildCommands(config.discord.clientId, config.discord.guildId);
 
     await rest.put(route, {
       body: CommandHandler.getCommands(),
     })
     console.log("Successfully reloaded application (/) commands.");
+    console.log("Registered commands: ", CommandHandler.getCommands());
+    console.log("discordGuildId", config.discord.guildId);
     
   } catch (error) {
     console.error(error);
