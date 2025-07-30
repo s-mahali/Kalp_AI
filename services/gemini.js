@@ -10,7 +10,7 @@ console.log("geminikey", config.apis.geminiApiKey);
 
 export class GeminiService {
   static async generateInterviewQuestions(role, difficulty = "intermediate") {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const prompt = `Generate 5 technical interview questions for a ${role} position at ${difficulty} level. 
       Format the response as a JSON array of strings. Questions should be practical and relevant to the role.
