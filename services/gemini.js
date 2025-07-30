@@ -6,10 +6,11 @@ import {
 import { config } from "../config/config.js";
 
 const genAI = new GoogleGenerativeAI(config.apis.geminiApiKey);
+console.log("geminikey", config.apis.geminiApiKey);
 
 export class GeminiService {
   static async generateInterviewQuestions(role, difficulty = "intermediate") {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `Generate 5 technical interview questions for a ${role} position at ${difficulty} level. 
       Format the response as a JSON array of strings. Questions should be practical and relevant to the role.
@@ -42,7 +43,7 @@ export class GeminiService {
   }
 
   static async evaluateAnswer(question, answer, role) {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     
     const prompt = `As an interviewer for a ${role} position, provide brief feedback on this answer:
       
@@ -67,7 +68,7 @@ export class GeminiService {
   }
 
   static async generateFinalFeedback(session) {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const qaText = session.answers
       .map(
@@ -99,7 +100,7 @@ Keep it conversational and positive for voice delivery.`;
   }
 
   static async generateFinalReport(session) {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const interviewQuestions = session.questions;
     const qaText = session.answers
@@ -207,7 +208,7 @@ Do not use markdown formatting.
  
     try {
         const model = genAI.getGenerativeModel({
-            model: 'gemini-1.5-flash',
+            model: 'gemini-1.5-pro',
             systemInstruction: systemInstruction,
         });
 
