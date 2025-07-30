@@ -49,7 +49,7 @@ export class GeminiService {
       Question: ${question}
       Answer: ${answer}
       
-      Give a short, encouraging response (1-2 sentences) and do not ask the followup question.Move on to the next question naturally.
+      Give a short, encouraging response (1-2 sentences) and do not ask the followup question.
       Keep it conversational for voice interview.
 
       If user is saying sorry repeat the question then answer ${question}
